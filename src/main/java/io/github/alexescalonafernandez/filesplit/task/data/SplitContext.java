@@ -9,7 +9,7 @@ public class SplitContext {
     private long beginFilePointer, endFilePointer;
     private SplitTaskConfiguration configuration;
     private long timestamp;
-    
+
     private SplitContext(long beginFilePointer, long endFilePointer, long timestamp, SplitTaskConfiguration configuration) {
         this.beginFilePointer = beginFilePointer;
         this.endFilePointer = endFilePointer;
