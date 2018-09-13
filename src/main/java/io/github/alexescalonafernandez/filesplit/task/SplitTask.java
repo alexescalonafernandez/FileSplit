@@ -1,5 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.task;
 
+import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,10 +18,15 @@ import java.util.regex.Pattern;
 public abstract class SplitTask implements Runnable {
     protected SplitContext splitContext;
     private CountDownLatch countDownLatch;
+    protected Consumer<Line> writeNotifier;
+    protected Consumer<Integer> progressNotifier;
 
-    public SplitTask(SplitContext splitContext, CountDownLatch countDownLatch) {
+    public SplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
+                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
         this.splitContext = splitContext;
         this.countDownLatch = countDownLatch;
+        this.writeNotifier = writeNotifier;
+        this.progressNotifier = progressNotifier;
     }
 
     @Override
@@ -45,15 +52,16 @@ public abstract class SplitTask implements Runnable {
                 end = 0;
                 Matcher matcher = pattern.matcher(buffer.toString());
                 while (matcher.find()) {
-                    notifyToWriteTask(matcher);
+                    notifyMatchedDataToWriteTask(matcher);
                     end = matcher.end();
                 }
                 size = buffer.length();
                 buffer.delete(0, end);
-                notifyToProgressTask(byteReads, size, size - buffer.length());
+                progressNotifier.accept(size - buffer.length());
             }
             if(buffer.length() > 0) {
-                processNotMatchData(buffer);
+                notifyNotMatchedDataToWriteTask(buffer);
+                progressNotifier.accept(buffer.length());
             }
             countDownLatch.countDown();
         } catch (FileNotFoundException e) {
@@ -64,7 +72,6 @@ public abstract class SplitTask implements Runnable {
     }
 
     protected abstract String getLineMatcherRegex();
-    protected abstract void notifyToWriteTask(Matcher matcher);
-    protected abstract void notifyToProgressTask(int byteReads, int bufferSizeBeforeMatch, int bufferSizeAfterMatch);
-    protected abstract void processNotMatchData(StringBuilder buffer);
+    protected abstract void notifyMatchedDataToWriteTask(Matcher matcher);
+    protected abstract void notifyNotMatchedDataToWriteTask(StringBuilder buffer);
 }

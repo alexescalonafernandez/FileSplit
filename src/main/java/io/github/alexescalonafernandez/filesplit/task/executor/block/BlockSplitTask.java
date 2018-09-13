@@ -15,15 +15,12 @@ import java.util.regex.Matcher;
  */
 public class BlockSplitTask extends SplitTask {
     private int lines, inc;
-    private Consumer<Line> writeNotifier;
-    private Consumer<Integer> progressNotifier;
+
     public BlockSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
                           Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
-        super(splitContext, countDownLatch);
+        super(splitContext, countDownLatch, writeNotifier, progressNotifier);
         this.lines = 0;
         this.inc = 1;
-        this.writeNotifier = writeNotifier;
-        this.progressNotifier = progressNotifier;
     }
 
     @Override
@@ -32,7 +29,16 @@ public class BlockSplitTask extends SplitTask {
     }
 
     @Override
-    protected void notifyToWriteTask(Matcher matcher) {
+    protected void notifyMatchedDataToWriteTask(Matcher matcher) {
+        notifyToWriter(matcher.group(0));
+    }
+
+    @Override
+    protected void notifyNotMatchedDataToWriteTask(StringBuilder buffer) {
+        notifyToWriter(buffer.toString());
+    }
+
+    private void notifyToWriter(String data) {
         lines++;
         if(lines == 1 && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
             writeNotifier.accept(new Line(buildSplitFilePath(), splitContext.getFileHeader()));
@@ -40,19 +46,7 @@ public class BlockSplitTask extends SplitTask {
             lines = 0;
             inc++;
         }
-        writeNotifier.accept(new Line(buildSplitFilePath(), matcher.group(0)));
-    }
-
-    @Override
-    protected void notifyToProgressTask(int byteReads, int bufferSizeBeforeMatch, int bufferSizeAfterMatch) {
-        progressNotifier.accept(bufferSizeBeforeMatch - bufferSizeAfterMatch);
-    }
-
-    @Override
-    protected void processNotMatchData(StringBuilder buffer) {
-        inc++;
-        writeNotifier.accept(new Line(buildSplitFilePath(), buffer.toString()));
-        progressNotifier.accept(buffer.length());
+        writeNotifier.accept(new Line(buildSplitFilePath(), data));
     }
 
 
