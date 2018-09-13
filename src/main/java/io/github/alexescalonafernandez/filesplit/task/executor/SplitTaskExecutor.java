@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +24,7 @@ import java.util.regex.Pattern;
 public abstract class SplitTaskExecutor {
     protected final SplitTaskConfiguration taskConfiguration;
     protected final SplitTaskNotification taskNotification;
-    private final List<SplitContext> tasks;
+    protected final List<SplitContext> tasks;
     protected long fileLength;
 
     public SplitTaskExecutor(SplitTaskConfiguration taskConfiguration, SplitTaskNotification taskNotification) throws IOException {
@@ -31,8 +33,8 @@ public abstract class SplitTaskExecutor {
         this.tasks = buildSplitTasksContexts();
     }
 
-    protected abstract SplitContext createSplitContext(long beginFilePointer, long endFilePointer);
-    protected abstract void executeSplitTasks(ExecutorService executorService);
+    protected abstract void executeSplitTasks(ExecutorService executorService, CountDownLatch splitTaskCountDownLatch,
+                                              BlockingQueue<Line> lineBlockingQueue, BlockingQueue<Integer> integerBlockingQueue);
 
     public int getTaskCount() {
         return tasks.size();
@@ -55,7 +57,7 @@ public abstract class SplitTaskExecutor {
 
             scheduler.scheduleAtFixedRate(splitProgressTask, 100, 100, TimeUnit.MILLISECONDS);
             scheduler.scheduleAtFixedRate(splitWriteTask, 100, 100, TimeUnit.MILLISECONDS);
-            executeSplitTasks(executorService);
+            executeSplitTasks(executorService, splitTaskCountDownLatch, lineBlockingQueue, integerBlockingQueue);
             splitTaskCountDownLatch.await();
             scheduleCountDownLatch.await();
 
@@ -71,13 +73,15 @@ public abstract class SplitTaskExecutor {
 
     private List<SplitContext> buildSplitTasksContexts() throws IOException {
         RandomAccessFile raf = new RandomAccessFile(new File(taskConfiguration.getFilePath()), "r");
+        Set<Long> uniques = new HashSet<>();
         List<SplitContext> tasks = new ArrayList<>();
         fileLength = raf.length();
-        long begin, end = -1, chunkSize = taskConfiguration.getChunkSize();
+        long begin, end = -1, chunkSize = taskConfiguration.getChunkSize(), timestamp;
         int byteReads;
         byte[] chunk = new byte[1024];
         Pattern pattern = Pattern.compile("[^\\n]*\\n", Pattern.MULTILINE);
         boolean flag = true, find;
+        String fileHeader = raf.readLine();
         while(flag) {
             begin = end + 1;
             end = begin + chunkSize;
@@ -97,7 +101,14 @@ public abstract class SplitTaskExecutor {
             } while((raf.getFilePointer() < raf.length()) && !find);
 
             flag = raf.getFilePointer() < raf.length();
-            tasks.add(createSplitContext(begin, end));
+            do {
+                timestamp = System.currentTimeMillis();
+            } while (!uniques.add(timestamp));
+            tasks.add(new SplitContext.Builder(begin, end, taskConfiguration)
+                    .timestamp(timestamp)
+                    .fileHeader(fileHeader)
+                    .build()
+            );
             if(tasks.size() == 1)
                 taskNotification.getMessageNotifier().accept("Calculating tasks, wait a few seconds...");
         }

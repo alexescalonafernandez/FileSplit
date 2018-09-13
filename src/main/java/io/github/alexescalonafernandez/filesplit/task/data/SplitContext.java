@@ -104,7 +104,7 @@ public class SplitContext {
             return timestamp;
         }
 
-        public Builder setTimestamp(long timestamp) {
+        public Builder timestamp(long timestamp) {
             this.timestamp = timestamp;
             return this;
         }
