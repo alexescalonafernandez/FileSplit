@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Created by alexander.escalona on 17/09/2018.
@@ -94,17 +96,29 @@ public abstract class AbstractTerminalMode extends BaseMode {
 
     @Override
     public String getPrefix() {
-        return null;
+        return textIO.newStringInputReader()
+                .read("Insert the prefix of the name of the generated files");
     }
 
     @Override
     public String getRegex() {
-        return null;
+        String regex = textIO.newStringInputReader()
+                .read("Insert the regex to match the group in a line");
+        try {
+            Pattern.compile(regex);
+            return regex;
+        } catch (PatternSyntaxException ex) {
+            terminal.println("Invalid regex");
+            return getRegex();
+        }
     }
 
     @Override
     public Integer getRegexGroup() {
-        return null;
+        return textIO.newIntInputReader()
+                .withMinVal(1)
+                .withMaxVal(9)
+                .read(String.format("Select the regex matched group, which will be used to group lines"));
     }
 
     @Override
