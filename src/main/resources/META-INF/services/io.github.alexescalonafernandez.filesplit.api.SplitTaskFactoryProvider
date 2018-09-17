@@ -1,0 +1,2 @@
+io.github.alexescalonafernandez.filesplit.spi.block.BlockSplitTaskFactoryProvider
+io.github.alexescalonafernandez.filesplit.spi.group.GroupSplitTaskFactoryProvider
