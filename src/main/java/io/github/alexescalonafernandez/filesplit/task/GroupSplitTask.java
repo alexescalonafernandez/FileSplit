@@ -1,6 +1,5 @@
-package io.github.alexescalonafernandez.filesplit.task.executor.group;
+package io.github.alexescalonafernandez.filesplit.task;
 
-import io.github.alexescalonafernandez.filesplit.task.SplitTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import org.apache.commons.io.FilenameUtils;

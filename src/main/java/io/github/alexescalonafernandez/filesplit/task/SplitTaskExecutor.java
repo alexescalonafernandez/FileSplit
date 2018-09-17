@@ -1,7 +1,9 @@
-package io.github.alexescalonafernandez.filesplit.task.executor;
+package io.github.alexescalonafernandez.filesplit.task;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactory;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
+import io.github.alexescalonafernandez.filesplit.spi.SplitTaskFactoryLookup;
 import io.github.alexescalonafernandez.filesplit.task.SplitProgressTask;
 import io.github.alexescalonafernandez.filesplit.task.SplitWriteTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
@@ -21,7 +23,7 @@ import java.util.regex.Pattern;
 /**
  * Created by alexander.escalona on 12/09/2018.
  */
-public abstract class SplitTaskExecutor {
+public class SplitTaskExecutor {
     protected final SplitTaskConfiguration taskConfiguration;
     protected final SplitTaskNotification taskNotification;
     protected final List<SplitContext> tasks;
@@ -32,9 +34,6 @@ public abstract class SplitTaskExecutor {
         this.taskNotification = taskNotification;
         this.tasks = buildSplitTasksContexts();
     }
-
-    protected abstract void executeSplitTasks(ExecutorService executorService, CountDownLatch splitTaskCountDownLatch,
-                                              BlockingQueue<Line> lineBlockingQueue, BlockingQueue<Integer> integerBlockingQueue);
 
     public int getTaskCount() {
         return tasks.size();
@@ -57,7 +56,14 @@ public abstract class SplitTaskExecutor {
 
             scheduler.scheduleAtFixedRate(splitProgressTask, 100, 100, TimeUnit.MILLISECONDS);
             scheduler.scheduleAtFixedRate(splitWriteTask, 100, 100, TimeUnit.MILLISECONDS);
-            executeSplitTasks(executorService, splitTaskCountDownLatch, lineBlockingQueue, integerBlockingQueue);
+            SplitTaskFactory splitTaskFactory = SplitTaskFactoryLookup.lookup(taskConfiguration.getOperationMode());
+            tasks.forEach(splitContext -> executorService.execute(
+                    splitTaskFactory.create(splitContext, splitTaskCountDownLatch,
+                            line -> lineBlockingQueue.add(line),
+                            byteReads -> integerBlockingQueue.add(byteReads)
+                    )
+            ));
+
             splitTaskCountDownLatch.await();
             scheduleCountDownLatch.await();
 
