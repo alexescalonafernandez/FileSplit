@@ -15,4 +15,10 @@ public @interface Required {
      * Defaults any means in any operations is needed.
      */
     OperationMode value() default OperationMode.ANY;
+
+    /**
+     *
+     * @return  the priority of the required data
+     */
+    int priority();
 }

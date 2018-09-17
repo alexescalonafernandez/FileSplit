@@ -8,14 +8,14 @@ public interface SplitTaskConfiguration {
      *
      * @return the path of the file to split
      */
-    @Required
+    @Required(priority = 1)
     String getFilePath();
 
     /**
      *
      * @return the chunk size that will read as average each split task of the file to split
      */
-    @Required
+    @Required(priority = 2)
     Long getChunkSize();
 
     /**
@@ -24,50 +24,50 @@ public interface SplitTaskConfiguration {
      *
      * @return
      */
-    @Required
+    @Required(priority = 3)
     Boolean appendFirstLine();
+
+    /**
+     *
+     * @return the split operation mode
+     */
+    @Required(priority = 4)
+    OperationMode getOperationMode();
 
     /**
      *
      * @return the folder where will be stored the generated files
      */
-    @Required
+    @Required(priority = 5)
     String getFolderPath();
 
     /**
      *
      * @return the desired thread workers that will split the file
      */
-    @Required
+    @Required(priority = 6)
     Integer getThreadNumber();
     Integer getMaxThreadNumber(int limit);
-
-    /**
-     *
-     * @return the split operation mode
-     */
-    @Required
-    OperationMode getOperationMode();
 
     /**
      * Used in {@code OperationMode.BLOCK}
      * @return the max of lines that will have at most each generated file
      */
-    @Required(OperationMode.BLOCK)
+    @Required(value = OperationMode.BLOCK, priority = 7)
     Integer getMaxLines();
 
     /**
      * Used in {@code OperationMode.GROUP}
      * @return the prefix that will have each generated file in its name
      */
-    @Required(OperationMode.GROUP)
+    @Required(value = OperationMode.GROUP, priority = 7)
     String getPrefix();
 
     /**
      * Used in {@code OperationMode.GROUP}
      * @return the regex that will be used to match a line in a multiline mode regex.
      */
-    @Required(OperationMode.GROUP)
+    @Required(value = OperationMode.GROUP, priority = 8)
     String getRegex();
 
     /**
@@ -76,7 +76,7 @@ public interface SplitTaskConfiguration {
      * with the group match as part of the file name, and the matched line will be appended to
      * this file.
      */
-    @Required(OperationMode.GROUP)
+    @Required(value = OperationMode.GROUP, priority = 9)
     Integer getRegexGroup();
 }
 
