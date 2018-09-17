@@ -11,10 +11,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,15 +46,17 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
             );
 
             //get values from terminal if necessary
-            getRequiredMethods(proxyInstance).forEach(method -> {
-                try {
-                    method.invoke(proxyInstance);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            });
+            getRequiredMethods(proxyInstance)
+                    .sorted(Comparator.comparing(o -> Integer.valueOf(o.getAnnotation(Required.class).priority())))
+                    .forEach(method -> {
+                        try {
+                            method.invoke(proxyInstance);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    });
 
             SplitTaskExecutor splitTaskExecutor = new SplitTaskExecutor(proxyInstance, this);
             splitTaskExecutor.execute();
@@ -91,12 +90,12 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
         return Arrays.asList(SplitTaskConfiguration.class.getMethods())
                 .stream()
                 .filter(method -> method.getAnnotation(Required.class) != null)
-                .collect(Collectors.groupingBy(method -> method.getAnnotation(Required.class)))
+                .collect(Collectors.groupingBy(method -> method.getAnnotation(Required.class).value()))
                 .entrySet()
                 .stream()
                 .filter(requiredListEntry ->
-                        OperationMode.ANY.equals(requiredListEntry.getKey().value()) ||
-                                requiredListEntry.getKey().value().equals(configuration.getOperationMode()))
+                        OperationMode.ANY.equals(requiredListEntry.getKey()) ||
+                                requiredListEntry.getKey().equals(configuration.getOperationMode()))
                 .map(requiredListEntry -> requiredListEntry.getValue())
                 .flatMap(Collection::stream);
     }
