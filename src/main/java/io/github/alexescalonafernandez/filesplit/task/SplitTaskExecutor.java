@@ -85,7 +85,7 @@ public class SplitTaskExecutor {
         byte[] chunk = new byte[1024];
         Pattern pattern = Pattern.compile("[^\\n]*\\n", Pattern.MULTILINE);
         boolean flag = true, find;
-        String fileHeader = raf.readLine();
+        String fileHeader = raf.readLine() + System.lineSeparator();
         while(flag) {
             begin = end + 1;
             end = begin + chunkSize;
