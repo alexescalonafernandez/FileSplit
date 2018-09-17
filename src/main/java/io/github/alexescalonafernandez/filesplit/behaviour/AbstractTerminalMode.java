@@ -67,7 +67,9 @@ public abstract class AbstractTerminalMode extends BaseMode {
     public Integer getMaxThreadNumber(int limit) {
         Integer defaultValue = getThreadNumber();
         if(defaultValue != null) {
+            if(BaseMode.canRunWithoutUserInteraction(baseSplitTaskConfiguration)) {
                 return defaultValue;
+            }
         }
 
         int maxThreadNumber = textIO.newIntInputReader()

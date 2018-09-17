@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by alexander.escalona on 17/09/2018.
@@ -24,7 +25,6 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
     protected final SplitTaskConfiguration baseSplitTaskConfiguration;
     private final HashMap<Method, Object> properties;
     public BaseMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-
         this.baseSplitTaskConfiguration = baseSplitTaskConfiguration;
         this.properties = new HashMap<>();
     }
@@ -44,9 +44,20 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
                 }
                 return properties.get(method);
             };
-            SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(SplitTaskConfiguration.class.getClassLoader(),
+            final SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(SplitTaskConfiguration.class.getClassLoader(),
                     new Class[]{SplitTaskConfiguration.class}, handler
             );
+
+            //get values from terminal if necessary
+            getRequiredMethods(proxyInstance).forEach(method -> {
+                try {
+                    method.invoke(proxyInstance);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            });
 
             SplitTaskExecutor splitTaskExecutor = new SplitTaskExecutor(proxyInstance, this);
             splitTaskExecutor.execute();
@@ -76,11 +87,8 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
         }).orElse(null);
     }
 
-    public static boolean canRunWithoutUserInteraction(final SplitTaskConfiguration configuration) {
-        if(configuration.getOperationMode() == null) {
-            return false;
-        }
-        return Arrays.asList(SplitTaskConfiguration.class.getDeclaredMethods())
+    private static Stream<Method> getRequiredMethods(final SplitTaskConfiguration configuration) {
+        return Arrays.asList(SplitTaskConfiguration.class.getMethods())
                 .stream()
                 .filter(method -> method.getAnnotation(Required.class) != null)
                 .collect(Collectors.groupingBy(method -> method.getAnnotation(Required.class)))
@@ -90,7 +98,14 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
                         OperationMode.ANY.equals(requiredListEntry.getKey().value()) ||
                                 requiredListEntry.getKey().value().equals(configuration.getOperationMode()))
                 .map(requiredListEntry -> requiredListEntry.getValue())
-                .flatMap(Collection::stream)
+                .flatMap(Collection::stream);
+    }
+
+    public static boolean canRunWithoutUserInteraction(final SplitTaskConfiguration configuration) {
+        if(configuration.getOperationMode() == null) {
+            return false;
+        }
+        return getRequiredMethods(configuration)
                 .map(method -> {
                     boolean result = false;
                     try {
