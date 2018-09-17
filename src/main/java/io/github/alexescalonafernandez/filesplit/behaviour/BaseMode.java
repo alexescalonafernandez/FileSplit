@@ -34,28 +34,15 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
         try {
             // creating proxy
             final SplitTaskConfiguration thisImplementation = this;
-            InvocationHandler handler = new InvocationHandler() {
-                @Override
-                public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                    if(!properties.containsKey(method)) {
-                        properties.put(
-                                method ,
-                                Optional.ofNullable(
-                                        baseSplitTaskConfiguration.getClass().getDeclaredMethod(
-                                                method.getName(), method.getParameterTypes()
-                                        ).invoke(baseSplitTaskConfiguration, args)
-                                )
-                                        .filter(o -> canRunWithoutUserInteraction(baseSplitTaskConfiguration))
-                                        .orElse(
-                                                thisImplementation.getClass().getDeclaredMethod(
-                                                        method.getName(),
-                                                        method.getParameterTypes())
-                                                        .invoke(thisImplementation, args)
-                                        )
-                        );
-                    }
-                    return properties.get(method);
+            InvocationHandler handler = (proxy, method, args) -> {
+                if(!properties.containsKey(method)) {
+                    properties.put(method ,
+                            Optional.ofNullable(getMethodValue(baseSplitTaskConfiguration, method, args))
+                                    .filter(o -> canRunWithoutUserInteraction(baseSplitTaskConfiguration))
+                                    .orElse(getMethodValue(thisImplementation, method, args))
+                    );
                 }
+                return properties.get(method);
             };
             SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(SplitTaskConfiguration.class.getClassLoader(),
                     new Class[]{SplitTaskConfiguration.class}, handler
@@ -66,6 +53,27 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Object getMethodValue(Object instance, Method method, Object[] args) throws Throwable{
+        return  Optional.ofNullable(
+                instance.getClass().getMethod(
+                        method.getName(), method.getParameterTypes()
+                )
+        ).map(methodInstance -> {
+            methodInstance.setAccessible(true);
+            Object result = null;
+            try {
+                result = methodInstance.invoke(instance, args);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+            finally {
+                return result;
+            }
+        }).orElse(null);
     }
 
     public static boolean canRunWithoutUserInteraction(final SplitTaskConfiguration configuration) {

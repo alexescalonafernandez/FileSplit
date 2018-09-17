@@ -4,8 +4,6 @@ import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactory;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
 import io.github.alexescalonafernandez.filesplit.spi.SplitTaskFactoryLookup;
-import io.github.alexescalonafernandez.filesplit.task.SplitProgressTask;
-import io.github.alexescalonafernandez.filesplit.task.SplitWriteTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 
