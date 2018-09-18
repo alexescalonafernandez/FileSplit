@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,17 +49,20 @@ public class SplitTaskExecutor {
             CountDownLatch scheduleCountDownLatch = new CountDownLatch(2);
 
             taskNotification.initProgressViewer();
+            final AtomicBoolean stopPopulate = new AtomicBoolean(false);
             SplitProgressTask splitProgressTask = new SplitProgressTask(fileLength, scheduleCountDownLatch,
                     () -> integerBlockingQueue, taskNotification.getProgressViewerNotifier());
-            SplitWriteTask splitWriteTask = new SplitWriteTask(scheduleCountDownLatch, () -> lineBlockingQueue);
+            SplitWriteTask splitWriteTask = new SplitWriteTask(scheduleCountDownLatch, () -> lineBlockingQueue,
+                    stopPopulate);
 
-            scheduler.scheduleAtFixedRate(splitProgressTask, 100, 100, TimeUnit.MILLISECONDS);
-            scheduler.scheduleAtFixedRate(splitWriteTask, 100, 100, TimeUnit.MILLISECONDS);
+            scheduler.scheduleAtFixedRate(splitProgressTask, 100, 30, TimeUnit.MILLISECONDS);
+            scheduler.scheduleAtFixedRate(splitWriteTask, 100, 30, TimeUnit.MILLISECONDS);
             SplitTaskFactory splitTaskFactory = SplitTaskFactoryLookup.lookup(taskConfiguration.getOperationMode());
             tasks.forEach(splitContext -> executorService.execute(
                     splitTaskFactory.create(splitContext, splitTaskCountDownLatch,
                             line -> lineBlockingQueue.add(line),
-                            byteReads -> integerBlockingQueue.add(byteReads)
+                            byteReads -> integerBlockingQueue.add(byteReads),
+                            stopPopulate
                     )
             ));
 

@@ -7,6 +7,7 @@ import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import io.github.alexescalonafernandez.filesplit.task.GroupSplitTask;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -14,7 +15,8 @@ import java.util.function.Consumer;
  */
 public class GroupSplitTaskFactory implements SplitTaskFactory{
     @Override
-    public SplitTask create(SplitContext splitContext, CountDownLatch countDownLatch, Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
-        return new GroupSplitTask(splitContext, countDownLatch, writeNotifier, progressNotifier);
+    public SplitTask create(SplitContext splitContext, CountDownLatch countDownLatch,
+                            Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+        return new GroupSplitTask(splitContext, countDownLatch, writeNotifier, progressNotifier, stopPopulate);
     }
 }

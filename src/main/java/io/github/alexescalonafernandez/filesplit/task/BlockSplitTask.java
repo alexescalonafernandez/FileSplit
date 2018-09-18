@@ -6,8 +6,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 
 /**
  * Created by alexander.escalona on 11/09/2018.
@@ -16,38 +16,25 @@ public class BlockSplitTask extends SplitTask {
     private int lines, inc;
 
     public BlockSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
-                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
-        super(splitContext, countDownLatch, writeNotifier, progressNotifier);
+                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+        super(splitContext, countDownLatch, writeNotifier, progressNotifier, stopPopulate);
         this.lines = 0;
         this.inc = 1;
     }
 
     @Override
-    protected String getLineMatcherRegex() {
-        return "[^\\n]*\\n";
-    }
-
-    @Override
-    protected void notifyMatchedDataToWriteTask(Matcher matcher) {
-        notifyToWriter(matcher.group(0));
-    }
-
-    @Override
-    protected void notifyNotMatchedDataToWriteTask(StringBuilder buffer) {
-        notifyToWriter(buffer.toString());
-    }
-
-    private void notifyToWriter(String data) {
+    protected void processLine(long lineOffset, String line) {
         lines++;
         if(lines == 1 && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
-            writeNotifier.accept(new Line(buildSplitFilePath(), splitContext.getFileHeader()));
+            if(lineOffset != 0) {
+                writeNotifier.accept(new Line(buildSplitFilePath(), splitContext.getFileHeader()));
+            }
         } else if(splitContext.getMaxLines() != null && lines > splitContext.getMaxLines()) {
             lines = 0;
             inc++;
         }
-        writeNotifier.accept(new Line(buildSplitFilePath(), data));
+        writeNotifier.accept(new Line(buildSplitFilePath(), line));
     }
-
 
     private String buildSplitFilePath() {
         File fileToSplit = new File(splitContext.getFilePath());

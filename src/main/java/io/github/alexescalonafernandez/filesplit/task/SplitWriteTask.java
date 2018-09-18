@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 /**
@@ -20,20 +21,28 @@ public class SplitWriteTask implements Runnable{
     private final CountDownLatch countDownLatch;
     private final HashMap<String, FileOutputStream> outputStreamHashMap;
     private final Supplier<BlockingQueue<Line>> lineBlockingQueueSupplier;
-    public SplitWriteTask(CountDownLatch countDownLatch, Supplier<BlockingQueue<Line>> lineBlockingQueueSupplier) {
+    private final AtomicBoolean stopPopulate;
+
+    public SplitWriteTask(CountDownLatch countDownLatch, Supplier<BlockingQueue<Line>> lineBlockingQueueSupplier,
+                          AtomicBoolean stopPopulate) {
         this.countDownLatch = countDownLatch;
         this.outputStreamHashMap = new HashMap<>();
         this.lineBlockingQueueSupplier = lineBlockingQueueSupplier;
+        this.stopPopulate = stopPopulate;
     }
 
     @Override
     public void run() {
         if(lineBlockingQueueSupplier.get().size() > 0) {
+            stopPopulate.set(true);
             List<Line> lines = new ArrayList<>();
             lineBlockingQueueSupplier.get().drainTo(lines);
             lines.stream().forEach(line -> {
                 try {
                     if(!outputStreamHashMap.containsKey(line.getFilePath())) {
+                        if(outputStreamHashMap.size() == 10) {
+                            closeAllOutputStreams();
+                        }
                         outputStreamHashMap.put(
                                 line.getFilePath(),
                                 new FileOutputStream(line.getFilePath(),true)
@@ -46,13 +55,19 @@ public class SplitWriteTask implements Runnable{
                     e.printStackTrace();
                 }
             });
-            outputStreamHashMap.values().forEach(fileOutputStream -> closeOutputStream(fileOutputStream));
-            outputStreamHashMap.clear();
+            closeAllOutputStreams();
+            stopPopulate.set(false);
         } else {
             if(this.countDownLatch.getCount() == 1) {
                 this.countDownLatch.countDown();
             }
         }
+
+    }
+
+    private void closeAllOutputStreams() {
+        outputStreamHashMap.values().forEach(fileOutputStream -> closeOutputStream(fileOutputStream));
+        outputStreamHashMap.clear();
     }
 
     /**

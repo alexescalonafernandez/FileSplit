@@ -5,49 +5,40 @@ import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by alexander.escalona on 12/09/2018.
  */
 public class GroupSplitTask extends SplitTask {
-    private boolean firstLine;
+    private HashSet<String> groups;
     public GroupSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
-                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
-        super(splitContext, countDownLatch, writeNotifier, progressNotifier);
-        this.firstLine = true;
+                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+        super(splitContext, countDownLatch, writeNotifier, progressNotifier, stopPopulate);
+        this.groups = new HashSet<>();
     }
 
     @Override
-    protected String getLineMatcherRegex() {
-        return splitContext.getRegex();
-    }
-
-    @Override
-    protected void notifyMatchedDataToWriteTask(Matcher matcher) {
-        Optional.ofNullable(splitContext.getRegexGroup()).ifPresent(value -> {
-            if(value <  matcher.groupCount()) {
-                String name = matcher.group(splitContext.getRegexGroup());
-                if(this.firstLine && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
-                    writeNotifier.accept(new Line(buildSplitFilePath(name), splitContext.getFileHeader()));
-                }
-                writeNotifier.accept(new Line(buildSplitFilePath(name), matcher.group(0)));
-                this.firstLine = false;
-            }
-        });
-    }
-
-    @Override
-    protected void notifyNotMatchedDataToWriteTask(StringBuilder buffer) {
-        String name = "no-match";
-        if(splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
+    protected void processLine(long lineOffset, String line) {
+        boolean flag = splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null;
+        if(flag && lineOffset == 0)
+            return;
+        Pattern pattern = Pattern.compile(splitContext.getRegex());
+        String name = Optional.of(pattern.matcher(line))
+                .filter(matcher -> matcher.find())
+                .filter(matcher -> Optional.ofNullable(splitContext.getRegexGroup()).isPresent())
+                .filter(matcher -> splitContext.getRegexGroup() <= matcher.groupCount())
+                .map(matcher -> matcher.group(splitContext.getRegexGroup()))
+                .orElse("no-match");
+        if(flag && groups.add(name)) {
             writeNotifier.accept(new Line(buildSplitFilePath(name), splitContext.getFileHeader()));
         }
-        writeNotifier.accept(new Line(buildSplitFilePath(name), buffer.toString()));
-        progressNotifier.accept(buffer.length());
+        writeNotifier.accept(new Line(buildSplitFilePath(name), line));
     }
 
     private String buildSplitFilePath(String name) {

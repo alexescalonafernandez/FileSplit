@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,17 +17,19 @@ import java.util.regex.Pattern;
  * Created by alexander.escalona on 11/09/2018.
  */
 public abstract class SplitTask implements Runnable {
-    protected SplitContext splitContext;
+    protected final SplitContext splitContext;
     private CountDownLatch countDownLatch;
     protected Consumer<Line> writeNotifier;
     protected Consumer<Integer> progressNotifier;
+    private final AtomicBoolean stopPopulate;
 
     public SplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
-                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier) {
+                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
         this.splitContext = splitContext;
         this.countDownLatch = countDownLatch;
         this.writeNotifier = writeNotifier;
         this.progressNotifier = progressNotifier;
+        this.stopPopulate = stopPopulate;
     }
 
     @Override
@@ -40,10 +43,12 @@ public abstract class SplitTask implements Runnable {
             byte[] chunk = new byte[1024];
             int byteReads, end, size;
             StringBuilder buffer = new StringBuilder();
-            Pattern pattern = Pattern.compile(getLineMatcherRegex(), Pattern.MULTILINE);
+            long chunkOffset = -1;
+            Pattern pattern = Pattern.compile("[^\\n]*\\n", Pattern.MULTILINE);
             // process from @{code splitContext.beginFilePointer} till @{code splitContext.endFilePointer}
             while (raf.getFilePointer() <= splitContext.getEndFilePointer()) {
                 // for reading the last portion, which can be less than 1Kb
+                chunkOffset = raf.getFilePointer();
                 if(splitContext.getEndFilePointer() - raf.getFilePointer() + 1 < chunk.length)
                     byteReads = raf.read(chunk, 0, (int)(splitContext.getEndFilePointer() - raf.getFilePointer() + 1));
                 else byteReads = raf.read(chunk);
@@ -52,7 +57,7 @@ public abstract class SplitTask implements Runnable {
                 end = 0;
                 Matcher matcher = pattern.matcher(buffer.toString());
                 while (matcher.find()) {
-                    notifyMatchedDataToWriteTask(matcher);
+                    processLineWrapper(chunkOffset + matcher.start(), matcher.group(0));
                     end = matcher.end();
                 }
                 size = buffer.length();
@@ -60,7 +65,7 @@ public abstract class SplitTask implements Runnable {
                 progressNotifier.accept(size - buffer.length());
             }
             if(buffer.length() > 0) {
-                notifyNotMatchedDataToWriteTask(buffer);
+                processLineWrapper(-1, buffer.toString());
                 progressNotifier.accept(buffer.length());
             }
             countDownLatch.countDown();
@@ -71,7 +76,11 @@ public abstract class SplitTask implements Runnable {
         }
     }
 
-    protected abstract String getLineMatcherRegex();
-    protected abstract void notifyMatchedDataToWriteTask(Matcher matcher);
-    protected abstract void notifyNotMatchedDataToWriteTask(StringBuilder buffer);
+    protected abstract void processLine(long lineOffset, String line);
+
+    private void processLineWrapper(long lineOffset, String line) {
+        while (stopPopulate.get())
+            Thread.yield();
+        processLine(lineOffset, line);
+    }
 }

@@ -41,8 +41,10 @@ public abstract class BaseMode implements Runnable, SplitTaskConfiguration, Spli
                 }
                 return properties.get(method);
             };
-            final SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(SplitTaskConfiguration.class.getClassLoader(),
-                    new Class[]{SplitTaskConfiguration.class}, handler
+            final SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(
+                    SplitTaskConfiguration.class.getClassLoader(),
+                    new Class[]{SplitTaskConfiguration.class},
+                    handler
             );
 
             //get values from terminal if necessary

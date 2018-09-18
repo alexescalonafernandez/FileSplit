@@ -5,6 +5,7 @@ import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
@@ -12,5 +13,5 @@ import java.util.function.Consumer;
  */
 public interface SplitTaskFactory {
     SplitTask create(SplitContext splitContext, CountDownLatch countDownLatch,
-                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier);
+                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate);
 }
