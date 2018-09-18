@@ -136,7 +136,7 @@ public class Main {
                             }
                         })
                         .filter(mode -> !OperationMode.ANY.equals(mode))
-                        .orElse(OperationMode.BLOCK);
+                        .orElse(null);
             }
 
             @Override

@@ -4,18 +4,26 @@ package io.github.alexescalonafernandez.filesplit.api;
  * Created by alexander.escalona on 11/09/2018.
  */
 public interface SplitTaskConfiguration {
+
+    /**
+     *
+     * @return the split operation mode
+     */
+    @Required(priority = 1)
+    OperationMode getOperationMode();
+
     /**
      *
      * @return the path of the file to split
      */
-    @Required(priority = 1)
+    @Required(priority = 2)
     String getFilePath();
 
     /**
      *
      * @return the chunk size that will read as average each split task of the file to split
      */
-    @Required(priority = 2)
+    @Required(priority = 3)
     Long getChunkSize();
 
     /**
@@ -24,15 +32,8 @@ public interface SplitTaskConfiguration {
      *
      * @return
      */
-    @Required(priority = 3)
-    Boolean appendFirstLine();
-
-    /**
-     *
-     * @return the split operation mode
-     */
     @Required(priority = 4)
-    OperationMode getOperationMode();
+    Boolean appendFirstLine();
 
     /**
      *

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * Created by alexander.escalona on 17/09/2018.
@@ -83,7 +84,15 @@ public abstract class AbstractTerminalMode extends BaseMode {
 
     @Override
     public OperationMode getOperationMode() {
-        return baseSplitTaskConfiguration.getOperationMode();
+        List<String> options = Arrays.asList(OperationMode.values())
+                .stream()
+                .filter(operationMode -> !OperationMode.ANY.equals(operationMode))
+                .map(operationMode -> operationMode.name())
+                .collect(Collectors.toList());
+        String selectedOption = textIO.newStringInputReader()
+                .withNumberedPossibleValues(options)
+                .read("Select the split operation mode");
+        return OperationMode.valueOf(OperationMode.class, selectedOption);
     }
 
     @Override
