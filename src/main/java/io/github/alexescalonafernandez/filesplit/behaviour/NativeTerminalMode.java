@@ -2,7 +2,6 @@ package io.github.alexescalonafernandez.filesplit.behaviour;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**

@@ -13,5 +13,6 @@ import java.util.function.Consumer;
  */
 public interface SplitTaskFactory {
     SplitTask create(SplitContext splitContext, CountDownLatch countDownLatch,
-                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate);
+                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier,
+                     AtomicBoolean stopPopulate);
 }

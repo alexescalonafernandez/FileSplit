@@ -3,10 +3,7 @@ package io.github.alexescalonafernandez.filesplit.behaviour;
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
 import io.github.alexescalonafernandez.filesplit.api.Required;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
-import io.github.alexescalonafernandez.filesplit.task.SplitTaskExecutor;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

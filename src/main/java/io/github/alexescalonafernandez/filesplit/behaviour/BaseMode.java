@@ -26,7 +26,7 @@ public abstract class BaseMode implements Runnable, SplitTaskNotification {
 
     @Override
     public void run() {
-        SplitTaskExecutor splitTaskExecutor = null;
+        SplitTaskExecutor splitTaskExecutor;
         try {
             splitTaskExecutor = new SplitTaskExecutor(getSplitTaskNotification(), this);
             splitTaskExecutor.execute();
