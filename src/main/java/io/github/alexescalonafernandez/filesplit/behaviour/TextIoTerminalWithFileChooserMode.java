@@ -10,9 +10,9 @@ import java.util.function.Predicate;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public class TerminalWithFileChooserMode extends AbstractTerminalMode {
+public class TextIoTerminalWithFileChooserMode extends AbstractTextIoTerminalMode {
 
-    public TerminalWithFileChooserMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
+    public TextIoTerminalWithFileChooserMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
         super(baseSplitTaskConfiguration);
     }
 

@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public abstract class AbstractTerminalMode extends BaseMode {
+public abstract class AbstractTextIoTerminalMode extends BaseMode {
     protected final TextIO textIO ;
     protected final TextTerminal terminal;
     private final AtomicInteger store;
-    public AbstractTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
+    public AbstractTextIoTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
         super(baseSplitTaskConfiguration);
         textIO = TextIoFactory.getTextIO();
         terminal = textIO.getTextTerminal();

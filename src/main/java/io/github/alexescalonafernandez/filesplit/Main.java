@@ -3,7 +3,7 @@ package io.github.alexescalonafernandez.filesplit;
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 import io.github.alexescalonafernandez.filesplit.behaviour.BaseMode;
-import io.github.alexescalonafernandez.filesplit.behaviour.TerminalMode;
+import io.github.alexescalonafernandez.filesplit.behaviour.TextIoTerminalMode;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -31,15 +31,12 @@ public class Main {
         SplitTaskConfiguration baseTaskConfiguration = buildTaskConfigurationFromArgs(args);
         BaseMode terminal = null;
         if(BaseMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
-            terminal = new TerminalMode(baseTaskConfiguration);
+            terminal = new TextIoTerminalMode(baseTaskConfiguration);
         } else {
-            terminal = new TerminalMode(baseTaskConfiguration);
+            terminal = new TextIoTerminalMode(baseTaskConfiguration);
         }
 
         terminal.run();
-
-//        TerminalWithFileChooserMode terminalWithFileChooserMode = new TerminalWithFileChooserMode();
-//        terminalWithFileChooserMode.run();
 
     }
 

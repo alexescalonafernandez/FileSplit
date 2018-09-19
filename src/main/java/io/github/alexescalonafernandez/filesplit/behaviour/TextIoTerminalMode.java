@@ -8,9 +8,9 @@ import java.util.function.Predicate;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public class TerminalMode extends AbstractTerminalMode{
+public class TextIoTerminalMode extends AbstractTextIoTerminalMode {
 
-    public TerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
+    public TextIoTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
         super(baseSplitTaskConfiguration);
     }
 
