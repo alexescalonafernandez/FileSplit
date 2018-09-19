@@ -6,8 +6,12 @@ import io.github.alexescalonafernandez.filesplit.behaviour.BaseInteractiveMode;
 import io.github.alexescalonafernandez.filesplit.behaviour.TextIoTerminalMode;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -28,15 +32,28 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        SplitTaskConfiguration baseTaskConfiguration = buildTaskConfigurationFromArgs(args);
-        BaseInteractiveMode terminal = null;
-        if(BaseInteractiveMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
-            terminal = new TextIoTerminalMode(baseTaskConfiguration);
+        if(args.length == 1 && "--help".equals(args[0])) {
+            try {
+                InputStream resource = Main.class.getClassLoader().getResourceAsStream("help.txt");
+                BufferedReader br = new BufferedReader(new InputStreamReader(resource));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
-            terminal = new TextIoTerminalMode(baseTaskConfiguration);
-        }
+            SplitTaskConfiguration baseTaskConfiguration = buildTaskConfigurationFromArgs(args);
+            BaseInteractiveMode terminal = null;
+            if(BaseInteractiveMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
+                terminal = new TextIoTerminalMode(baseTaskConfiguration);
+            } else {
+                terminal = new TextIoTerminalMode(baseTaskConfiguration);
+            }
 
-        terminal.run();
+            terminal.run();
+        }
 
     }
 

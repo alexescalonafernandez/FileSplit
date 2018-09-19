@@ -1,0 +1,1 @@
+For running the file spliter without interaction uses these arguments
