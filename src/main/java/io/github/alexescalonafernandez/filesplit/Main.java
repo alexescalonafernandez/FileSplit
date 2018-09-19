@@ -2,7 +2,7 @@ package io.github.alexescalonafernandez.filesplit;
 
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
-import io.github.alexescalonafernandez.filesplit.behaviour.BaseMode;
+import io.github.alexescalonafernandez.filesplit.behaviour.BaseInteractiveMode;
 import io.github.alexescalonafernandez.filesplit.behaviour.TextIoTerminalMode;
 import org.apache.commons.io.FileUtils;
 
@@ -29,8 +29,8 @@ public class Main {
      */
     public static void main(String[] args) {
         SplitTaskConfiguration baseTaskConfiguration = buildTaskConfigurationFromArgs(args);
-        BaseMode terminal = null;
-        if(BaseMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
+        BaseInteractiveMode terminal = null;
+        if(BaseInteractiveMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
             terminal = new TextIoTerminalMode(baseTaskConfiguration);
         } else {
             terminal = new TextIoTerminalMode(baseTaskConfiguration);

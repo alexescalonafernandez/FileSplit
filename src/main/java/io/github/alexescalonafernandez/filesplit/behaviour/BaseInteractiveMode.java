@@ -18,10 +18,10 @@ import java.util.stream.Stream;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public abstract class BaseMode implements Runnable, SplitTaskConfiguration, SplitTaskNotification {
+public abstract class BaseInteractiveMode implements Runnable, SplitTaskConfiguration, SplitTaskNotification {
     protected final SplitTaskConfiguration baseSplitTaskConfiguration;
     private final HashMap<Method, Object> properties;
-    public BaseMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
+    public BaseInteractiveMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
         this.baseSplitTaskConfiguration = baseSplitTaskConfiguration;
         this.properties = new HashMap<>();
     }

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public abstract class AbstractTextIoTerminalMode extends BaseMode {
+public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
     protected final TextIO textIO ;
     protected final TextTerminal terminal;
     private final AtomicInteger store;
@@ -70,7 +70,7 @@ public abstract class AbstractTextIoTerminalMode extends BaseMode {
     public Integer getMaxThreadNumber(int limit) {
         Integer defaultValue = getThreadNumber();
         if(defaultValue != null) {
-            if(BaseMode.canRunWithoutUserInteraction(baseSplitTaskConfiguration)) {
+            if(BaseInteractiveMode.canRunWithoutUserInteraction(baseSplitTaskConfiguration)) {
                 return defaultValue;
             }
         }
