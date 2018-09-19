@@ -20,13 +20,11 @@ import java.util.stream.Collectors;
 public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
     protected final TextIO textIO ;
     protected final TextTerminal terminal;
-    private final AtomicInteger store;
     public AbstractTextIoTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
         super(baseSplitTaskConfiguration);
         textIO = TextIoFactory.getTextIO();
         terminal = textIO.getTextTerminal();
         terminal.getProperties().put("pane.title", "File Split");
-        this.store = new AtomicInteger(-1);
     }
 
     @Override
@@ -139,33 +137,13 @@ public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
     }
 
     @Override
-    public Consumer<Double> getProgressViewerNotifier() {
-        return percent -> {
-            int value = (int)Math.floor(percent);
-            if(value > store.getAndSet(value)) {
-                int progressCharsToShow = value / 2;
-                terminal.resetToBookmark("progressBar");
-                terminal.rawPrint(
-                        String.format("Progress: |%s%s| %d%s",
-                                repeat('\u2588', progressCharsToShow),
-                                repeat('-', 50 - progressCharsToShow),
-                                value, "%"
-                        )
-                );
-            }
-        };
-    }
-
-    protected String repeat(char c, int times) {
-        StringBuilder sb = new StringBuilder();
-        while (times-- > 0) {
-            sb.append(c);
-        }
-        return sb.toString();
+    public Consumer<String> getMessageNotifier() {
+        return message -> terminal.println(message);
     }
 
     @Override
-    public Consumer<String> getMessageNotifier() {
-        return message -> terminal.println(message);
+    protected void printProgressBar(String progressBar) {
+        terminal.resetToBookmark("progressBar");
+        terminal.rawPrint(progressBar);
     }
 }
