@@ -18,53 +18,48 @@ import java.util.stream.Stream;
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
-public abstract class BaseInteractiveMode implements Runnable, SplitTaskConfiguration, SplitTaskNotification {
+public abstract class BaseInteractiveMode extends BaseMode implements SplitTaskConfiguration {
     protected final SplitTaskConfiguration baseSplitTaskConfiguration;
     private final HashMap<Method, Object> properties;
     public BaseInteractiveMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
+        super(baseSplitTaskConfiguration);
         this.baseSplitTaskConfiguration = baseSplitTaskConfiguration;
         this.properties = new HashMap<>();
     }
 
     @Override
-    public void run() {
-        try {
-            // creating proxy
-            final SplitTaskConfiguration thisImplementation = this;
-            InvocationHandler handler = (proxy, method, args) -> {
-                if(!properties.containsKey(method)) {
-                    properties.put(method ,
-                            Optional.ofNullable(getMethodValue(baseSplitTaskConfiguration, method, args))
-                                    .filter(o -> canRunWithoutUserInteraction(baseSplitTaskConfiguration))
-                                    .orElse(getMethodValue(thisImplementation, method, args))
-                    );
-                }
-                return properties.get(method);
-            };
-            final SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(
-                    SplitTaskConfiguration.class.getClassLoader(),
-                    new Class[]{SplitTaskConfiguration.class},
-                    handler
-            );
+    protected SplitTaskConfiguration getSplitTaskNotification() {
+        // creating proxy
+        final SplitTaskConfiguration thisImplementation = this;
+        InvocationHandler handler = (proxy, method, args) -> {
+            if(!properties.containsKey(method)) {
+                properties.put(method ,
+                        Optional.ofNullable(getMethodValue(baseSplitTaskConfiguration, method, args))
+                                .filter(o -> canRunWithoutUserInteraction(baseSplitTaskConfiguration))
+                                .orElse(getMethodValue(thisImplementation, method, args))
+                );
+            }
+            return properties.get(method);
+        };
+        final SplitTaskConfiguration proxyInstance = (SplitTaskConfiguration) Proxy.newProxyInstance(
+                SplitTaskConfiguration.class.getClassLoader(),
+                new Class[]{SplitTaskConfiguration.class},
+                handler
+        );
 
-            //get values from terminal if necessary
-            getRequiredMethods(proxyInstance)
-                    .sorted(Comparator.comparing(o -> Integer.valueOf(o.getAnnotation(Required.class).priority())))
-                    .forEach(method -> {
-                        try {
-                            method.invoke(proxyInstance);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
-            SplitTaskExecutor splitTaskExecutor = new SplitTaskExecutor(proxyInstance, this);
-            splitTaskExecutor.execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //get values from terminal if necessary
+        getRequiredMethods(proxyInstance)
+                .sorted(Comparator.comparing(o -> Integer.valueOf(o.getAnnotation(Required.class).priority())))
+                .forEach(method -> {
+                    try {
+                        method.invoke(proxyInstance);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                });
+        return proxyInstance;
     }
 
     private Object getMethodValue(Object instance, Method method, Object[] args) throws Throwable{
