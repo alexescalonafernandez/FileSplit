@@ -22,7 +22,7 @@ public class NativeTerminalMode extends BaseMode{
     @Override
     protected void printProgressBar(String progressBar) {
         System.out.printf("\r");
-        System.out.println(progressBar);
+        System.out.print(progressBar);
     }
 
     @Override
