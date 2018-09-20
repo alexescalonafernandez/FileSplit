@@ -2,9 +2,11 @@ package io.github.alexescalonafernandez.filesplit.task;
 
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
@@ -34,11 +36,38 @@ public class GroupSplitTask extends SplitTask {
                 .filter(matcher -> Optional.ofNullable(splitContext.getRegexGroup()).isPresent())
                 .filter(matcher -> splitContext.getRegexGroup() <= matcher.groupCount())
                 .map(matcher -> matcher.group(splitContext.getRegexGroup()))
-                .orElse("no-match");
-        if(flag && groups.add(name)) {
-            writeNotifier.accept(new Line(buildSplitFilePath(name), splitContext.getFileHeader()));
+                .orElse(null);
+        String path;
+        if(name == null) {
+            File file = new File(splitContext.getFolderPath(), "no-match");
+            try {
+                if(!file.exists()) {
+                    tryCreateFolder(file);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                file = new File(splitContext.getFolderPath());
+            } finally {
+                File fileToSplit = new File(splitContext.getFilePath());
+                path = new File(file,
+                        String.format("no-match.%s",
+                                FilenameUtils.getExtension(fileToSplit.getAbsolutePath())
+                        )
+                ).getAbsolutePath();
+            }
+        } else {
+            path = buildSplitFilePath(name);
         }
-        writeNotifier.accept(new Line(buildSplitFilePath(name), line));
+        if(flag && groups.add(name)) {
+            writeNotifier.accept(new Line(path, splitContext.getFileHeader()));
+        }
+        writeNotifier.accept(new Line(path, line));
+    }
+
+    private static synchronized void tryCreateFolder(File file) throws IOException {
+        if(!file.exists()) {
+            FileUtils.forceMkdir(file);
+        }
     }
 
     private String buildSplitFilePath(String name) {
