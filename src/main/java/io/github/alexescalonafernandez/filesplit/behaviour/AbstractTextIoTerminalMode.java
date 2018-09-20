@@ -1,11 +1,12 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 import org.beryx.textio.TextIO;
 import org.beryx.textio.TextIoFactory;
 import org.beryx.textio.TextTerminal;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
@@ -13,14 +14,16 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
+import static io.github.alexescalonafernandez.filesplit.api.IntrospectionUtil.getCurrentEnclosingMethodFrom;
+
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
 public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
     protected final TextIO textIO ;
     protected final TextTerminal terminal;
-    public AbstractTextIoTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        super(baseSplitTaskConfiguration);
+    public AbstractTextIoTerminalMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        super(splitTaskConfigurationFromArgs);
         textIO = TextIoFactory.getTextIO();
         terminal = textIO.getTextTerminal();
         terminal.getProperties().put("pane.title", "File Split");
@@ -60,16 +63,14 @@ public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
 
     @Override
     public Integer getThreadNumber() {
-        return baseSplitTaskConfiguration.getThreadNumber();
+        return splitTaskConfigurationFromArgs.getThreadNumber();
     }
 
     @Override
     public Integer getMaxThreadNumber(int limit) {
-        Integer defaultValue = getThreadNumber();
-        if(defaultValue != null) {
-            if(BaseInteractiveMode.canRunWithoutUserInteraction(baseSplitTaskConfiguration)) {
-                return defaultValue;
-            }
+        Method currentMethod = getCurrentEnclosingMethodFrom(new Object(){});
+        if(!splitTaskConfigurationFromArgs.isArgumentDataDefault(currentMethod)) {
+            return splitTaskConfigurationFromArgs.getMaxThreadNumber(limit);
         }
 
         int maxThreadNumber = textIO.newIntInputReader()

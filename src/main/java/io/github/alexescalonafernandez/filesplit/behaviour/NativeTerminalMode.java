@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 
 import java.util.function.Consumer;
 
@@ -9,8 +9,8 @@ import java.util.function.Consumer;
  */
 public class NativeTerminalMode extends BaseMode{
 
-    public NativeTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        super(baseSplitTaskConfiguration);
+    public NativeTerminalMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        super(splitTaskConfigurationFromArgs);
     }
 
     @Override

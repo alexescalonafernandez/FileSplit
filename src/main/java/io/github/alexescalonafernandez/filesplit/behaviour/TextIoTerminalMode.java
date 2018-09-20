@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 
 import java.io.File;
 import java.util.function.Predicate;
@@ -10,8 +10,8 @@ import java.util.function.Predicate;
  */
 public class TextIoTerminalMode extends AbstractTextIoTerminalMode {
 
-    public TextIoTerminalMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        super(baseSplitTaskConfiguration);
+    public TextIoTerminalMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        super(splitTaskConfigurationFromArgs);
     }
 
     /**

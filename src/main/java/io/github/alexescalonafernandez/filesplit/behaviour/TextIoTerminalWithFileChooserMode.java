@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -12,8 +12,8 @@ import java.util.function.Predicate;
  */
 public class TextIoTerminalWithFileChooserMode extends AbstractTextIoTerminalMode {
 
-    public TextIoTerminalWithFileChooserMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        super(baseSplitTaskConfiguration);
+    public TextIoTerminalWithFileChooserMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        super(splitTaskConfigurationFromArgs);
     }
 
     String getFilePath(String questionText, int selectionMode, Predicate<File> fileChecker) {

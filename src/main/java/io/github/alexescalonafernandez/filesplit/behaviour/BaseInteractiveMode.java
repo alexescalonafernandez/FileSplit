@@ -1,40 +1,56 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
-import io.github.alexescalonafernandez.filesplit.api.OperationMode;
 import io.github.alexescalonafernandez.filesplit.api.Required;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static io.github.alexescalonafernandez.filesplit.api.IntrospectionUtil.getMethodValue;
+import static io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils.canRunWithoutUserInteraction;
+import static io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils.getRequiredMethods;
 
 /**
  * Created by alexander.escalona on 17/09/2018.
  */
 public abstract class BaseInteractiveMode extends BaseMode implements SplitTaskConfiguration {
-    protected final SplitTaskConfiguration baseSplitTaskConfiguration;
+    protected final SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs;
     private final HashMap<Method, Object> properties;
-    public BaseInteractiveMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        super(baseSplitTaskConfiguration);
-        this.baseSplitTaskConfiguration = baseSplitTaskConfiguration;
+    public BaseInteractiveMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        super(splitTaskConfigurationFromArgs);
+        this.splitTaskConfigurationFromArgs = splitTaskConfigurationFromArgs;
         this.properties = new HashMap<>();
     }
 
     @Override
-    protected SplitTaskConfiguration getSplitTaskNotification() {
+    protected SplitTaskConfiguration getSplitTaskConfiguration() {
         // creating proxy
         final SplitTaskConfiguration thisImplementation = this;
         InvocationHandler handler = (proxy, method, args) -> {
             if(!properties.containsKey(method)) {
-                properties.put(method ,
-                        Optional.ofNullable(getMethodValue(baseSplitTaskConfiguration, method, args))
-                                .filter(o -> canRunWithoutUserInteraction(baseSplitTaskConfiguration))
-                                .orElse(getMethodValue(thisImplementation, method, args))
-                );
+                Object value = Optional.ofNullable(method)
+                        .filter(m -> {
+                            if(m.getAnnotation(Required.class) != null) {
+                                return canRunWithoutUserInteraction(
+                                        splitTaskConfigurationFromArgs,
+                                        m.getAnnotation(Required.class).priority()
+                                ) || !splitTaskConfigurationFromArgs.isArgumentDataDefault(m);
+                            } else {
+                                return !splitTaskConfigurationFromArgs.isArgumentDataDefault(m);
+                            }
+                        })
+                        .map(m -> getMethodValue(splitTaskConfigurationFromArgs, m, args))
+                        .map(methodResult -> (Supplier<Object>) () -> methodResult)
+                        .orElse(() -> getMethodValue(thisImplementation, method, args))
+                        .get();
+                properties.put(method, value);
             }
             return properties.get(method);
         };
@@ -44,7 +60,7 @@ public abstract class BaseInteractiveMode extends BaseMode implements SplitTaskC
                 handler
         );
 
-        //get values from terminal if necessary
+        //populate properties
         getRequiredMethods(proxyInstance)
                 .sorted(Comparator.comparing(o -> Integer.valueOf(o.getAnnotation(Required.class).priority())))
                 .forEach(method -> {
@@ -57,60 +73,5 @@ public abstract class BaseInteractiveMode extends BaseMode implements SplitTaskC
                     }
                 });
         return proxyInstance;
-    }
-
-    private Object getMethodValue(Object instance, Method method, Object[] args) throws Throwable{
-        return  Optional.ofNullable(
-                instance.getClass().getMethod(
-                        method.getName(), method.getParameterTypes()
-                )
-        ).map(methodInstance -> {
-            methodInstance.setAccessible(true);
-            Object result = null;
-            try {
-                result = methodInstance.invoke(instance, args);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-            finally {
-                return result;
-            }
-        }).orElse(null);
-    }
-
-    private static Stream<Method> getRequiredMethods(final SplitTaskConfiguration configuration) {
-        return Arrays.asList(SplitTaskConfiguration.class.getMethods())
-                .stream()
-                .filter(method -> method.getAnnotation(Required.class) != null)
-                .collect(Collectors.groupingBy(method -> method.getAnnotation(Required.class).value()))
-                .entrySet()
-                .stream()
-                .filter(requiredListEntry ->
-                        OperationMode.ANY.equals(requiredListEntry.getKey()) ||
-                                requiredListEntry.getKey().equals(configuration.getOperationMode()))
-                .map(requiredListEntry -> requiredListEntry.getValue())
-                .flatMap(Collection::stream);
-    }
-
-    public static boolean canRunWithoutUserInteraction(final SplitTaskConfiguration configuration) {
-        if(configuration.getOperationMode() == null) {
-            return false;
-        }
-        return getRequiredMethods(configuration)
-                .map(method -> {
-                    boolean result = false;
-                    try {
-                        result = method.invoke(configuration) != null;
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } finally {
-                        return result;
-                    }
-                })
-                .reduce(true, (acc, current) -> acc && current);
     }
 }

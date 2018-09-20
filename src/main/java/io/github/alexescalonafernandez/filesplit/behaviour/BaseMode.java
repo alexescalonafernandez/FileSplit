@@ -1,6 +1,7 @@
 package io.github.alexescalonafernandez.filesplit.behaviour;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
 import io.github.alexescalonafernandez.filesplit.task.SplitTaskExecutor;
 
@@ -12,23 +13,23 @@ import java.util.function.Consumer;
  * Created by alexander.escalona on 19/09/2018.
  */
 public abstract class BaseMode implements Runnable, SplitTaskNotification {
-    protected final SplitTaskConfiguration baseSplitTaskConfiguration;
+    protected final SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs;
     protected final AtomicInteger store;
 
-    public BaseMode(SplitTaskConfiguration baseSplitTaskConfiguration) {
-        this.baseSplitTaskConfiguration = baseSplitTaskConfiguration;
+    public BaseMode(SplitTaskConfigurationFromArgs splitTaskConfigurationFromArgs) {
+        this.splitTaskConfigurationFromArgs = splitTaskConfigurationFromArgs;
         this.store = new AtomicInteger(-1);
     }
 
-    protected SplitTaskConfiguration getSplitTaskNotification() {
-        return baseSplitTaskConfiguration;
+    protected SplitTaskConfiguration getSplitTaskConfiguration() {
+        return splitTaskConfigurationFromArgs;
     }
 
     @Override
     public void run() {
         SplitTaskExecutor splitTaskExecutor;
         try {
-            splitTaskExecutor = new SplitTaskExecutor(getSplitTaskNotification(), this);
+            splitTaskExecutor = new SplitTaskExecutor(getSplitTaskConfiguration(), this);
             splitTaskExecutor.execute();
         } catch (IOException e) {
             e.printStackTrace();
