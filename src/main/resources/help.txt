@@ -1,1 +1,31 @@
-For running the file spliter without interaction uses these arguments
+For running the file splitter without interaction uses these arguments:
+The ARGUMENT column is the name of the argument. The TYPE column is the data type of the argument.
+The MODE column specify in which split mode the argument is necessary, if the mode is ANY is
+necessary in all the modes. The DESCRIPTION column explain the purpose of the argument.
+
+ARGUMENT            TYPE          MODE     DESCRIPTION
+--mode              BLOCK|GROUP   ANY      The splitter mode.
+--filePath          string        ANY      The path of the file which will be splitted.
+--chunkSize         integer       ANY      The estimated size in bytes that each thread worker will 
+                                           process from the file to split.
+--appendFirstLine   true|false    ANY      If its value is true, the first line of the file will
+                                           be inserted as the first row of all generated files,
+                                           which can be useful when processing CSV files.
+--folderPath        string        ANY      The path of the folder where the generated files 
+                                           will be stored. The folder must exists.
+--threadNumber      integer       ANY      The maximum number of thread workers which split the file
+                                           concurrently.
+--maxLines          integer       BLOCK    The maximum number of lines that the generated files can have.
+--prefix            string        GROUP    The prefix that will have the name of each generated file.
+--regex             regex         GROUP    A string representing a regular expression, which will be 
+                                           applied to each line processed by a thread worker. It is 
+                                           expected that the regular expression has a group that 
+                                           represents the value by which the lines are grouped, which 
+                                           will be used as part of the name of the generated file. 
+--regexGroup        integer       GROUP    A number between 1 and 9 that represents the group specified
+                                           in the --regex argument, which will be used to extract 
+                                           segment of the line representing the value to group the lines.
+                                           
+Example of arguments where a CSV file is splitted using the BLOCK mode
+--mode BLOCK --filePath D:\file.csv --chunkSize 1048576 --appendFirstLine true --folderPath D:\split 
+--threadNumber 8 --maxLines 10000
