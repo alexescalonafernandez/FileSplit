@@ -2,16 +2,11 @@ package io.github.alexescalonafernandez.filesplit;
 
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
-import io.github.alexescalonafernandez.filesplit.behaviour.BaseInteractiveMode;
-import io.github.alexescalonafernandez.filesplit.behaviour.TextIoTerminalMode;
+import io.github.alexescalonafernandez.filesplit.behaviour.*;
 import org.apache.commons.io.FileUtils;
+import org.beryx.textio.swing.SwingTextTerminal;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -45,13 +40,33 @@ public class Main {
             }
         } else {
             SplitTaskConfiguration baseTaskConfiguration = buildTaskConfigurationFromArgs(args);
-            BaseInteractiveMode terminal = null;
+            BaseMode terminal;
             if(BaseInteractiveMode.canRunWithoutUserInteraction(baseTaskConfiguration)) {
-                terminal = new TextIoTerminalMode(baseTaskConfiguration);
+                terminal = new NativeTerminalMode(baseTaskConfiguration);
             } else {
-                terminal = new TextIoTerminalMode(baseTaskConfiguration);
+                System.setProperty("org.beryx.textio.TextTerminal", SwingTextTerminal.class.getName());
+                int mode = -1;
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                do {
+                    System.out.println();
+                    System.out.println("Select the interaction mode");
+                    System.out.println("1. Single Terminal Mode");
+                    System.out.println("2. Terminal with File Chooser Mode");
+                    try {
+                        mode = Optional.ofNullable(br.readLine())
+                                .filter(s -> s.matches("^1|2$"))
+                                .map(s -> Integer.valueOf(s))
+                                .orElse(-1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } while (mode == -1);
+                if(mode == 1) {
+                    terminal = new TextIoTerminalMode(baseTaskConfiguration);
+                } else {
+                    terminal = new TextIoTerminalWithFileChooserMode(baseTaskConfiguration);
+                }
             }
-
             terminal.run();
         }
 
@@ -59,8 +74,10 @@ public class Main {
 
     private static HashMap<String, String> getArguments(String[] args) {
         HashMap<String, String> arguments = new HashMap<>();
-        for(int i = 0; i < args.length - 1; i+=2)
+        for(int i = 0; i < args.length - 1; i+=2) {
             arguments.put(args[i], args[i + 1]);
+        }
+
         return arguments;
     }
 
@@ -79,13 +96,13 @@ public class Main {
 
             @Override
             public Long getChunkSize() {
-                long oneMB = 1024 * 1024;
+                long oneKB = 1024 * 1024;
                 return Optional.ofNullable(
-                        Optional.ofNullable(arguments.get("--chunkSize")).orElse(String.valueOf(oneMB)))
+                        Optional.ofNullable(arguments.get("--chunkSize")).orElse(String.valueOf(oneKB)))
                         .filter(s -> {
                             try {
                                 long value = Long.valueOf(s);
-                                long oneGB = (long)Math.pow(1024, 3);
+                                long oneGB = (long)Math.pow(1024, 4);
                                 return value > 0 && value < oneGB;
                             } catch (NumberFormatException e) {
                                 return false;
