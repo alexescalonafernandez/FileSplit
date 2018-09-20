@@ -21,4 +21,6 @@ public @interface Required {
      * @return  the priority of the required data
      */
     int priority();
+
+    String argumentName();
 }
