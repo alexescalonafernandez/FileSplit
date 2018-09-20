@@ -12,7 +12,7 @@ ARGUMENT            TYPE          MODE     DESCRIPTION
                                            be inserted as the first row of all generated files,
                                            which can be useful when processing CSV files.
 --folderPath        string        ANY      The path of the folder where the generated files 
-                                           will be stored. The folder must exists.
+                                           will be stored.
 --threadNumber      integer       ANY      The maximum number of thread workers which split the file
                                            concurrently.
 --maxLines          integer       BLOCK    The maximum number of lines that the generated files can have.
