@@ -14,8 +14,8 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import static io.github.alexescalonafernandez.filesplit.api.IntrospectionUtil.*;
-import static io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils.getRequiredMethods;
+import static io.github.alexescalonafernandez.filesplit.api.utils.IntrospectionUtil.*;
+import static io.github.alexescalonafernandez.filesplit.api.utils.SplitTaskConfigurationUtils.getRequiredMethods;
 
 /**
  * Created by alexander.escalona on 19/09/2018.

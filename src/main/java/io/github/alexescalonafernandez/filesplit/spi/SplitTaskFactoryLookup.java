@@ -1,8 +1,8 @@
 package io.github.alexescalonafernandez.filesplit.spi;
 
 import io.github.alexescalonafernandez.filesplit.api.OperationMode;
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactory;
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactoryProvider;
+import io.github.alexescalonafernandez.filesplit.api.factory.SplitTaskFactory;
+import io.github.alexescalonafernandez.filesplit.api.factory.SplitTaskFactoryProvider;
 
 import java.util.Iterator;
 import java.util.Optional;

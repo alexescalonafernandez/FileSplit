@@ -13,9 +13,9 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import static io.github.alexescalonafernandez.filesplit.api.IntrospectionUtil.getMethodValue;
-import static io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils.canRunWithoutUserInteraction;
-import static io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils.getRequiredMethods;
+import static io.github.alexescalonafernandez.filesplit.api.utils.IntrospectionUtil.getMethodValue;
+import static io.github.alexescalonafernandez.filesplit.api.utils.SplitTaskConfigurationUtils.canRunWithoutUserInteraction;
+import static io.github.alexescalonafernandez.filesplit.api.utils.SplitTaskConfigurationUtils.getRequiredMethods;
 
 /**
  * Created by alexander.escalona on 17/09/2018.

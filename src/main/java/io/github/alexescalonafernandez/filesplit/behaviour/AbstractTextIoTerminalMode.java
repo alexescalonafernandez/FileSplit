@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-import static io.github.alexescalonafernandez.filesplit.api.IntrospectionUtil.getCurrentEnclosingMethodFrom;
+import static io.github.alexescalonafernandez.filesplit.api.utils.IntrospectionUtil.getCurrentEnclosingMethodFrom;
 
 /**
  * Created by alexander.escalona on 17/09/2018.

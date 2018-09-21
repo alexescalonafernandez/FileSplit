@@ -24,10 +24,10 @@ public class BlockSplitTask extends SplitTask {
     }
 
     @Override
-    protected void processLine(long lineOffset, String line) {
+    protected void processLine(long beginLineOffset, long endLineOffset, String line) {
         lines++;
         if(lines == 1 && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
-            if(lineOffset != 0) {
+            if(beginLineOffset != 0) {
                 writeNotifier.accept(new Line(buildSplitFilePath(), splitContext.getFileHeader()));
             }
         } else if(splitContext.getMaxLines() != null && lines > splitContext.getMaxLines()) {

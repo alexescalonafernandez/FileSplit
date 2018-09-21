@@ -1,4 +1,4 @@
-package io.github.alexescalonafernandez.filesplit.api;
+package io.github.alexescalonafernandez.filesplit.api.utils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

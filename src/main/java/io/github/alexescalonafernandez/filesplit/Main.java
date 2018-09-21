@@ -1,7 +1,7 @@
 package io.github.alexescalonafernandez.filesplit;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
-import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationUtils;
+import io.github.alexescalonafernandez.filesplit.api.utils.SplitTaskConfigurationUtils;
 import io.github.alexescalonafernandez.filesplit.behaviour.BaseMode;
 import io.github.alexescalonafernandez.filesplit.behaviour.NativeTerminalMode;
 import io.github.alexescalonafernandez.filesplit.behaviour.TextIoTerminalMode;

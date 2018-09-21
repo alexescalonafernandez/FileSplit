@@ -1,4 +1,8 @@
-package io.github.alexescalonafernandez.filesplit.api;
+package io.github.alexescalonafernandez.filesplit.api.utils;
+
+import io.github.alexescalonafernandez.filesplit.api.OperationMode;
+import io.github.alexescalonafernandez.filesplit.api.Required;
+import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

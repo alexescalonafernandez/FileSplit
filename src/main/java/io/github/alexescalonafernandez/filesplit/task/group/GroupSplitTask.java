@@ -27,9 +27,9 @@ public class GroupSplitTask extends SplitTask {
     }
 
     @Override
-    protected void processLine(long lineOffset, String line) {
+    protected void processLine(long beginLineOffset, long endLineOffset, String line) {
         boolean flag = splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null;
-        if(flag && lineOffset == 0)
+        if(flag && beginLineOffset == 0)
             return;
         Pattern pattern = Pattern.compile(splitContext.getRegex());
         String name = Optional.of(pattern.matcher(line))
@@ -63,6 +63,12 @@ public class GroupSplitTask extends SplitTask {
             writeNotifier.accept(new Line(path, splitContext.getFileHeader()));
         }
         writeNotifier.accept(new Line(path, line));
+    }
+
+    @Override
+    protected void dispose() {
+        super.dispose();
+        groups.clear();
     }
 
     private static synchronized void tryCreateFolder(File file) throws IOException {
