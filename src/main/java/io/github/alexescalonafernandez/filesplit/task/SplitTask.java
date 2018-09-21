@@ -34,9 +34,10 @@ public abstract class SplitTask implements Runnable {
 
     @Override
     public void run() {
+        RandomAccessFile raf = null;
         try {
             // set the file pointer at the beginning of the chunk to process
-            RandomAccessFile raf = new RandomAccessFile(new File(splitContext.getFilePath()), "r");
+            raf = new RandomAccessFile(new File(splitContext.getFilePath()), "r");
             raf.seek(splitContext.getBeginFilePointer());
 
             // for read 1Kb
@@ -65,7 +66,8 @@ public abstract class SplitTask implements Runnable {
                 progressNotifier.accept(size - buffer.length());
             }
             if(buffer.length() > 0) {
-                processLineWrapper(-1, buffer.toString());
+                String line = buffer.toString();
+                processLineWrapper(splitContext.getEndFilePointer() - (line.length() - 1), line);
                 progressNotifier.accept(buffer.length());
             }
             countDownLatch.countDown();
@@ -73,12 +75,20 @@ public abstract class SplitTask implements Runnable {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if(raf != null) {
+                try {
+                    raf.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     protected abstract void processLine(long lineOffset, String line);
 
-    private void processLineWrapper(long lineOffset, String line) {
+    protected void processLineWrapper(long lineOffset, String line) {
         while (stopPopulate.get())
             Thread.yield();
         processLine(lineOffset, line);
