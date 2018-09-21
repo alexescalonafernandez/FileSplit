@@ -6,9 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +20,7 @@ public class SplitWriteTask implements Runnable{
     private final HashMap<String, FileOutputStream> outputStreamHashMap;
     private final Supplier<BlockingQueue<Line>> lineBlockingQueueSupplier;
     private final AtomicBoolean stopPopulate;
+    private final Set<String> generatedFiles;
 
     public SplitWriteTask(CountDownLatch countDownLatch, Supplier<BlockingQueue<Line>> lineBlockingQueueSupplier,
                           AtomicBoolean stopPopulate) {
@@ -29,6 +28,7 @@ public class SplitWriteTask implements Runnable{
         this.outputStreamHashMap = new HashMap<>();
         this.lineBlockingQueueSupplier = lineBlockingQueueSupplier;
         this.stopPopulate = stopPopulate;
+        this.generatedFiles = new HashSet<>();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class SplitWriteTask implements Runnable{
                         }
                         outputStreamHashMap.put(
                                 line.getFilePath(),
-                                new FileOutputStream(line.getFilePath(),true)
+                                new FileOutputStream(line.getFilePath(), !generatedFiles.add(line.getFilePath()))
                         );
                     }
                     outputStreamHashMap.get(line.getFilePath()).write(line.getText().getBytes());
