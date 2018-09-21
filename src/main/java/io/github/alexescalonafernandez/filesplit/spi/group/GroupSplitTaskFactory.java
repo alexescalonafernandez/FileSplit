@@ -1,7 +1,7 @@
 package io.github.alexescalonafernandez.filesplit.spi.group;
 
 import io.github.alexescalonafernandez.filesplit.api.factory.SplitTaskFactory;
-import io.github.alexescalonafernandez.filesplit.task.SplitTask;
+import io.github.alexescalonafernandez.filesplit.task.BaseTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import io.github.alexescalonafernandez.filesplit.task.split.GroupSplitTask;
@@ -15,8 +15,8 @@ import java.util.function.Consumer;
  */
 public class GroupSplitTaskFactory implements SplitTaskFactory{
     @Override
-    public SplitTask create(SplitContext splitContext, CountDownLatch countDownLatch,
-                            Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+    public BaseTask create(SplitContext splitContext, CountDownLatch countDownLatch,
+                           Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
         return new GroupSplitTask(splitContext, countDownLatch, writeNotifier, progressNotifier, stopPopulate);
     }
 }

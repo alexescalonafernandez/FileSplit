@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.task.block;
 
-import io.github.alexescalonafernandez.filesplit.task.SplitTask;
+import io.github.alexescalonafernandez.filesplit.task.BaseTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SegmentMetadata;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 /**
  * Created by alexander.escalona on 21/09/2018.
  */
-public class SegmentMetadataTask extends SplitTask{
+public class SegmentMetadataTask extends BaseTask {
     private final SegmentMetadata metadata;
     private final Queue<LineMetadata> store;
 

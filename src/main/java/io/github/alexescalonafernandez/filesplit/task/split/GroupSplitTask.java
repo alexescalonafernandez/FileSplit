@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.task.split;
 
-import io.github.alexescalonafernandez.filesplit.task.SplitTask;
+import io.github.alexescalonafernandez.filesplit.task.BaseTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import org.apache.commons.io.FileUtils;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * Created by alexander.escalona on 12/09/2018.
  */
-public class GroupSplitTask extends SplitTask {
+public class GroupSplitTask extends BaseTask {
     private HashSet<String> groups;
     public GroupSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
                           Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {

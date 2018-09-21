@@ -1,6 +1,6 @@
 package io.github.alexescalonafernandez.filesplit.task.split;
 
-import io.github.alexescalonafernandez.filesplit.task.SplitTask;
+import io.github.alexescalonafernandez.filesplit.task.BaseTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 import org.apache.commons.io.FilenameUtils;
@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 /**
  * Created by alexander.escalona on 11/09/2018.
  */
-public class BlockSplitTask extends SplitTask {
+public class BlockSplitTask extends BaseTask {
     private boolean isFirstLine;
     private final String outputFilePath;
     public BlockSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,

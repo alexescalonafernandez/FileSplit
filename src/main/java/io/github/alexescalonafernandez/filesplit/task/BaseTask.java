@@ -16,15 +16,15 @@ import java.util.regex.Pattern;
 /**
  * Created by alexander.escalona on 11/09/2018.
  */
-public abstract class SplitTask implements Runnable {
+public abstract class BaseTask implements Runnable {
     protected final SplitContext splitContext;
     private CountDownLatch countDownLatch;
     protected Consumer<Line> writeNotifier;
     protected Consumer<Integer> progressNotifier;
     private final AtomicBoolean stopPopulate;
 
-    public SplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
-                     Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+    public BaseTask(SplitContext splitContext, CountDownLatch countDownLatch,
+                    Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
         this.splitContext = splitContext;
         this.countDownLatch = countDownLatch;
         this.writeNotifier = writeNotifier;
