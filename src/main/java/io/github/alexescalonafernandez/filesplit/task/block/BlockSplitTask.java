@@ -14,38 +14,38 @@ import java.util.function.Consumer;
  * Created by alexander.escalona on 11/09/2018.
  */
 public class BlockSplitTask extends SplitTask {
-    private int lines, inc;
-
+    private boolean isFirstLine;
+    private final String outputFilePath;
     public BlockSplitTask(SplitContext splitContext, CountDownLatch countDownLatch,
-                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier, AtomicBoolean stopPopulate) {
+                          Consumer<Line> writeNotifier, Consumer<Integer> progressNotifier,
+                          AtomicBoolean stopPopulate) {
         super(splitContext, countDownLatch, writeNotifier, progressNotifier, stopPopulate);
-        this.lines = 0;
-        this.inc = 1;
+        this.isFirstLine = true;
+
+        String index = String.valueOf(splitContext.getTaskIndex());
+        int maxCharacters = String.valueOf(splitContext.getTaskCount()).length();
+        while (index.length() < maxCharacters) {
+            index = "0" + index;
+        }
+
+        File fileToSplit = new File(splitContext.getFilePath());
+        outputFilePath = new File(splitContext.getFolderPath(),
+                String.format("%s-%s.%s",
+                        FilenameUtils.getBaseName(fileToSplit.getAbsolutePath()),
+                        index,
+                        FilenameUtils.getExtension(fileToSplit.getAbsolutePath())
+                )
+        ).getAbsolutePath();
     }
 
     @Override
     protected void processLine(long beginLineOffset, long endLineOffset, String line) {
-        lines++;
-        if(lines == 1 && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
+        if(isFirstLine && splitContext.isAppendFirstLine() && splitContext.getFileHeader() != null) {
             if(beginLineOffset != 0) {
-                writeNotifier.accept(new Line(buildSplitFilePath(), splitContext.getFileHeader()));
+                writeNotifier.accept(new Line(outputFilePath, splitContext.getFileHeader()));
             }
-        } else if(splitContext.getMaxLines() != null && lines > splitContext.getMaxLines()) {
-            lines = 0;
-            inc++;
         }
-        writeNotifier.accept(new Line(buildSplitFilePath(), line));
-    }
-
-    private String buildSplitFilePath() {
-        File fileToSplit = new File(splitContext.getFilePath());
-        return new File(splitContext.getFolderPath(),
-                String.format("%s-%d-%d.%s",
-                        FilenameUtils.getBaseName(fileToSplit.getAbsolutePath()),
-                        splitContext.getTimestamp(),
-                        inc,
-                        FilenameUtils.getExtension(fileToSplit.getAbsolutePath())
-                )
-        ).getAbsolutePath();
+        writeNotifier.accept(new Line(outputFilePath, line));
+        isFirstLine = false;
     }
 }

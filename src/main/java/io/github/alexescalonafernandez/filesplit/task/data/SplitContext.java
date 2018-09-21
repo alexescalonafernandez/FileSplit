@@ -8,13 +8,15 @@ import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 public class SplitContext {
     private long beginFilePointer, endFilePointer;
     private SplitTaskConfiguration configuration;
-    private long timestamp;
+    private long taskCount, taskIndex;
     private String fileHeader;
 
-    private SplitContext(long beginFilePointer, long endFilePointer, SplitTaskConfiguration configuration) {
+    private SplitContext(long beginFilePointer, long endFilePointer, SplitTaskConfiguration configuration,
+                         String fileHeader) {
         this.beginFilePointer = beginFilePointer;
         this.endFilePointer = endFilePointer;
         this.configuration = configuration;
+        this.fileHeader = fileHeader;
     }
 
     public long getBeginFilePointer() {
@@ -23,10 +25,6 @@ public class SplitContext {
 
     public long getEndFilePointer() {
         return endFilePointer;
-    }
-
-    public Long getTimestamp() {
-        return timestamp;
     }
 
     public boolean isAppendFirstLine() {
@@ -61,16 +59,34 @@ public class SplitContext {
         return fileHeader;
     }
 
+    public long getTaskCount() {
+        return taskCount;
+    }
+
+    public void setTaskCount(long taskCount) {
+        this.taskCount = taskCount;
+    }
+
+    public long getTaskIndex() {
+        return taskIndex;
+    }
+
+    public void setTaskIndex(long taskIndex) {
+        this.taskIndex = taskIndex;
+    }
+
     public static class Builder {
         private long beginFilePointer, endFilePointer;
         private SplitTaskConfiguration configuration;
-        private long timestamp;
+        private long taskCount, taskIndex;
         private String fileHeader;
 
-        public Builder(long beginFilePointer, long endFilePointer, SplitTaskConfiguration configuration) {
+        public Builder(long beginFilePointer, long endFilePointer, SplitTaskConfiguration configuration,
+                       String fileHeader) {
             this.beginFilePointer = beginFilePointer;
             this.endFilePointer = endFilePointer;
             this.configuration = configuration;
+            this.fileHeader = fileHeader;
         }
 
         public long getBeginFilePointer() {
@@ -95,17 +111,8 @@ public class SplitContext {
             return configuration;
         }
 
-        public Builder setConfiguration(SplitTaskConfiguration configuration) {
+        public Builder configuration(SplitTaskConfiguration configuration) {
             this.configuration = configuration;
-            return this;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public Builder timestamp(long timestamp) {
-            this.timestamp = timestamp;
             return this;
         }
 
@@ -118,10 +125,29 @@ public class SplitContext {
             return this;
         }
 
+        public long getTaskCount() {
+            return taskCount;
+        }
+
+        public Builder taskCount(long taskCount) {
+            this.taskCount = taskCount;
+            return this;
+        }
+
+        public long getTaskIndex() {
+            return taskIndex;
+        }
+
+        public Builder taskIndex(long taskIndex) {
+            this.taskIndex = taskIndex;
+            return this;
+        }
+
         public SplitContext build() {
-            SplitContext context = new SplitContext(beginFilePointer, endFilePointer, configuration);
-            context.timestamp = this.timestamp;
-            context.fileHeader = this.fileHeader;
+            SplitContext context = new SplitContext(beginFilePointer, endFilePointer,
+                    configuration, fileHeader);
+            context.taskCount = taskCount;
+            context.taskIndex = taskIndex;
             return context;
         }
     }
