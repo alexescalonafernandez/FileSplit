@@ -3,7 +3,7 @@ package io.github.alexescalonafernandez.filesplit.behaviour;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfigurationFromArgs;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
-import io.github.alexescalonafernandez.filesplit.task.SplitTaskExecutor;
+import io.github.alexescalonafernandez.filesplit.task.executor.SplitTaskExecutor;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;

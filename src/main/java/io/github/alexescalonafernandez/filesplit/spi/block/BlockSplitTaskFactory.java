@@ -4,7 +4,7 @@ import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactory;
 import io.github.alexescalonafernandez.filesplit.task.SplitTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
-import io.github.alexescalonafernandez.filesplit.task.BlockSplitTask;
+import io.github.alexescalonafernandez.filesplit.task.block.BlockSplitTask;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;

@@ -1,4 +1,4 @@
-package io.github.alexescalonafernandez.filesplit.task;
+package io.github.alexescalonafernandez.filesplit.task.progress;
 
 import java.util.ArrayList;
 import java.util.List;

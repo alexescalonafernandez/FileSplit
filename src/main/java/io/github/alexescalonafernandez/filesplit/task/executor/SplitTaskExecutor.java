@@ -1,9 +1,11 @@
-package io.github.alexescalonafernandez.filesplit.task;
+package io.github.alexescalonafernandez.filesplit.task.executor;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskFactory;
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskNotification;
 import io.github.alexescalonafernandez.filesplit.spi.SplitTaskFactoryLookup;
+import io.github.alexescalonafernandez.filesplit.task.progress.SplitProgressTask;
+import io.github.alexescalonafernandez.filesplit.task.write.SplitWriteTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 
