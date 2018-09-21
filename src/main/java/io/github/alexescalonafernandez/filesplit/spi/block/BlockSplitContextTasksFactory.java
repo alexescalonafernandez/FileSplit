@@ -2,7 +2,7 @@ package io.github.alexescalonafernandez.filesplit.spi.block;
 
 import io.github.alexescalonafernandez.filesplit.api.SplitTaskConfiguration;
 import io.github.alexescalonafernandez.filesplit.spi.BaseSplitContextTasksFactory;
-import io.github.alexescalonafernandez.filesplit.task.block.SegmentMetadataTask;
+import io.github.alexescalonafernandez.filesplit.task.write.SegmentMetadataTask;
 import io.github.alexescalonafernandez.filesplit.task.data.SegmentMetadata;
 import io.github.alexescalonafernandez.filesplit.task.data.SplitContext;
 

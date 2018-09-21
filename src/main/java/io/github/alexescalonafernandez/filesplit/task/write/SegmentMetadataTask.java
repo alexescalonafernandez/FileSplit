@@ -1,4 +1,4 @@
-package io.github.alexescalonafernandez.filesplit.task.block;
+package io.github.alexescalonafernandez.filesplit.task.write;
 
 import io.github.alexescalonafernandez.filesplit.task.BaseTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 /**
  * Created by alexander.escalona on 21/09/2018.
  */
-public class SegmentMetadataTask extends BaseTask {
+public class SegmentMetadataTask extends BaseTask implements WriteTask{
     private final SegmentMetadata metadata;
     private final Queue<LineMetadata> store;
 
@@ -65,17 +65,7 @@ public class SegmentMetadataTask extends BaseTask {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            try {
-                outputStream.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            closeOutputStream(outputStream);
         }
     }
 
