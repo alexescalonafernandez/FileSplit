@@ -1,4 +1,4 @@
-package io.github.alexescalonafernandez.filesplit.task.block;
+package io.github.alexescalonafernandez.filesplit.task.split;
 
 import io.github.alexescalonafernandez.filesplit.task.SplitTask;
 import io.github.alexescalonafernandez.filesplit.task.data.Line;
