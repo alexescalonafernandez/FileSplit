@@ -26,7 +26,7 @@ public abstract class AbstractTextIoTerminalMode extends BaseInteractiveMode {
         super(splitTaskConfigurationFromArgs);
         textIO = TextIoFactory.getTextIO();
         terminal = textIO.getTextTerminal();
-        terminal.getProperties().put("pane.title", "File Split");
+        terminal.getProperties().put("pane.title", "File Splitter");
     }
 
     @Override
