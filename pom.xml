@@ -7,6 +7,7 @@
     <groupId>io.github.alexescalonafernandez</groupId>
     <artifactId>file-split</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>File Splitter</name>
 
     <dependencies>
         <dependency>
@@ -53,6 +54,8 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>FileSplitter</finalName>
                         </configuration>
                     </execution>
                 </executions>
