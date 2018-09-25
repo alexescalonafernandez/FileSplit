@@ -31,10 +31,10 @@ For non interactive mode you can use the arguments, for more information about a
 ### Arguments
 | ARGUMENT | TYPE | MODE | DEFAULT | DESCRIPTION |
 | --- | --- | --- | ---- | ---- |
-| `--mode` | **BLOCK**|**GROUP** | **ANY** | | The splitting mode that the application uses. |
+| `--mode` | **BLOCK**\|**GROUP** | **ANY** | | The splitting mode that the application uses. |
 | `--filePath` | string | **ANY** | | The path of the file which will be splitted. |
 | `--chunkSize` | integer | **ANY** | 1 **Mb** |The estimated size in bytes that each working thread will processing of the file to split. |
-| `--appendFirstLine` | *true*|*false* | **ANY** | *false* |If its value is true, the first line of the file will be inserted as the first line of all generated files, which can be useful when processing CSV files. |
+| `--appendFirstLine` | *true*\|*false* | **ANY** | *false* |If its value is true, the first line of the file will be inserted as the first line of all generated files, which can be useful when processing CSV files. |
 | `--folderPath` | string | **ANY** | | The path of the folder where the generated files will be stored. |
 | `--threadNumber` | integer | **ANY** | 8 |The maximum number of working threads which split the file concurrently. |
 | `--maxLines` | integer | **BLOCK** | 100000 |The maximum number of lines that the generated files can have. |
